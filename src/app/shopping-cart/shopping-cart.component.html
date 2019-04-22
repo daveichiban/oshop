@@ -1,3 +1,4 @@
-<p>
-  shopping-cart works!
-</p>
+<h1>Shopping Cart</h1>
+<ng-container *ngIf="cart$ | async as cart">
+    <p>You have {{ cart.totalItemsCount }} items in your shoping cart.</p>
+</ng-container>
