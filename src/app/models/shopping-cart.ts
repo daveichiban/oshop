@@ -13,8 +13,11 @@ export class ShoppingCart {
     }
 
     getQuantity(product: Product) {
+      if (this.itemsMap) {
       const item = this.itemsMap[product.key];
       return item ? item.quantity : 0;
+      }
+      return 0;
     }
 
     get totalItemsCount() {
