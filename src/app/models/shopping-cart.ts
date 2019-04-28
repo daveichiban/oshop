@@ -13,10 +13,7 @@ export class ShoppingCart {
     // tslint:disable-next-line:forin
     for (const productId in itemsMap) {
       const item = itemsMap[productId];
-      const x = new ShoppingCartItem();
-      Object.assign(x, item);
-      x.key = productId;
-      this.items.push(x);
+      this.items.push(new ShoppingCartItem({ key: productId, ...item }));
     }
   }
 
