@@ -12,9 +12,12 @@ export class ProductQuantityComponent {
   @Input() product: Product;
   @Input() shoppingCart;
 
-  constructor(private cartService: ShoppingCartService) { }
+
+  constructor(private cartService: ShoppingCartService) {
+  }
 
   async addToCart() {
+    console.log(this.product);
     this.cartService.addToCart(this.product);
   }
 

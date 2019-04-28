@@ -4,6 +4,7 @@ import { Product } from "./models/product";
 import { take, map } from "rxjs/operators";
 import { Observable } from "rxjs";
 import { ShoppingCart } from "./models/shopping-cart";
+import { ShoppingCartItem } from "./models/shopping-cart-item";
 
 @Injectable({
   providedIn: "root"
@@ -18,13 +19,15 @@ export class ShoppingCartService {
   }
 
   async getCart(): Promise<Observable<ShoppingCart>> {
-    const cartId  = await this.getOrCreateCartId();
-    return this.db.object(`/shopping-carts/${cartId}`).snapshotChanges()
-      .pipe(
-        map((x: any) => {
-          return new ShoppingCart(x.payload.val().items);
-        }
-      ));
+    const cartId = await this.getOrCreateCartId();
+    return this.db
+      .object("/shopping-carts/" + cartId)
+      .snapshotChanges()
+      .map(action => {
+        const key = action.key;
+        const items = action.payload.val().items;
+        return new ShoppingCart(key, items);
+      });
   }
 
   private getItem(cartId: string, productId: string) {
@@ -45,14 +48,14 @@ export class ShoppingCartService {
   }
 
   async addToCart(product: Product) {
-    this.updateItemQuantity(product, 1);
+    this.updateItem(product, 1);
   }
 
   async removeFromCart(product: Product) {
-    this.updateItemQuantity(product, -1);
+    this.updateItem(product, -1);
   }
 
-  private async updateItemQuantity(product: Product, change: number) {
+  private async updateItem(product: Product, change: number) {
     const cartId = await this.getOrCreateCartId();
     const item$ = await this.getItem(cartId, product.key);
     item$
@@ -60,10 +63,11 @@ export class ShoppingCartService {
       .pipe(take(1))
       .subscribe((item: any) => {
         item$.update({
-          product: product,
+          title: product.title,
+          price: product.price,
+          imageUrl: product.imageUrl,
           quantity: ((item.payload.exists() && item.payload.val().quantity) || 0) + change
         });
       });
   }
-
 }
